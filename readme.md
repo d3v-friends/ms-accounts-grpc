@@ -23,6 +23,8 @@ go-grpc protoc --config=protoc.yaml
 
 # 환경변수
 
+* 기본 배포 포트 15001
+
 TZ=
 PORT=
 MG_HOST=

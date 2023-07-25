@@ -1,0 +1,12 @@
+FROM golang:alpine
+
+# ssl
+RUN apk --no-cache add ca-certificates
+
+# 소스복사
+WORKDIR /build
+COPY go.mod go.mod
+COPY go.sum go.sum
+
+# 모든 라이브러리 다운로드
+RUN go mod download
