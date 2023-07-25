@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+message Empty {}
+
+message Account {
+  string id = 1;
+  map<string, string> identifier = 2;
+  map<string, Verifier> verifier = 3;
+  map<string, string> property = 4;
+  map<string, bool> permission = 5;
+  string createdAt = 100;
+  string updatedAt = 101;
+}
+
+
+message Verifier {
+  string salt = 1;
+  string mode = 2;
+}

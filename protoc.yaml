@@ -1,0 +1,10 @@
+protoPath: "/protos"
+outPath: "/"
+packageNm: "/services"
+include:
+  - "account.proto"
+  - "session.proto"
+  - "system.proto"
+  - "models.proto"
+import:
+  - "models.proto"

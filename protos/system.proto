@@ -1,0 +1,23 @@
+syntax = "proto3";
+import "models.proto";
+
+service Systems {
+  // read
+  rpc readAccountIndex(Empty) returns (AccountIndex);
+
+  // update
+  rpc updateKeys(IUpdateKeys) returns (Empty);
+}
+
+message AccountIndex {
+  repeated string identifier = 1;
+  repeated string property = 2;
+  repeated string permission = 3;
+  string updatedAt = 4;
+}
+
+message IUpdateKeys {
+  repeated string identifier = 1;
+  repeated string property = 2;
+  repeated string permission = 4;
+}

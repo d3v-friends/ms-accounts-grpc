@@ -1,0 +1,87 @@
+syntax = "proto3";
+import "models.proto";
+
+service Accounts {
+  // create
+  rpc create(ICreateAccount) returns (Account);
+
+  // read
+  rpc readOne(IReadAccount) returns (Account);
+  rpc readAll(IReadAccount) returns (AccountAll);
+  rpc readList(IReadAccountList) returns (AccountList);
+
+  // update
+  rpc upsert(IUpsertAccount) returns (Account);
+
+  // delete
+  rpc deleteElem(IDeleteAccountElem) returns (Account);
+}
+
+
+// Models
+message AccountAll {
+  repeated Account list = 1;
+}
+
+message AccountList {
+  int64 page = 1;
+  int64 size = 2;
+  int64 total = 3;
+  repeated Account list = 4;
+}
+
+// Input
+message IReadAccount {
+  optional string id = 1;
+  map<string, string> identifier = 2;
+  map<string, string> property = 3;
+  map<string, bool> permission = 4;
+  optional ISortAccount sort = 5;
+}
+
+message IReadAccountList {
+  int64 page = 1;
+  int64 size = 2;
+  IReadAccount filter = 3;
+}
+
+message ISortAccount {
+  map<string, int64> identifier = 1;
+  map<string, int64> property = 2;
+  map<string, int64> createdAt = 3;
+}
+
+message ICreateAccount {
+  map<string, string> identifier = 1;
+  map<string, string> property = 2;
+  map<string, IVerifier> verifier = 3;
+  map<string, bool> permission = 4;
+}
+
+message IVerifier {
+  string salt = 1;
+  string passwd = 2;
+  string etc = 3;
+  VerifyMode mode = 4;
+}
+
+message IUpsertAccount {
+  IReadAccount filter = 1;
+  map<string, string> identifier = 2;
+  map<string, string> property = 3;
+  map<string, bool> permission = 4;
+  map<string, IVerifier> verifier = 5;
+}
+
+message IDeleteAccountElem {
+  IReadAccount filter = 1;
+  repeated string identifier = 2;
+  repeated string property = 3;
+  repeated string verifier = 4;
+  repeated string permission = 5;
+}
+
+enum VerifyMode {
+  COMPARE = 0;
+  G_OTP = 1;
+}
