@@ -19,7 +19,7 @@ import (
 )
 
 func main() {
-	var logger = fnLogger.NewDefaultLogger()
+
 	var mClient = fnPanic.OnValue(mango.NewClient(&mango.ClientOpt{
 		Host:     fnEnv.Read("MG_HOST"),
 		Username: fnEnv.Read("MG_USERNAME"),
@@ -33,7 +33,10 @@ func main() {
 	go cron.Run()
 	var server = grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
-		grpc.UnaryInterceptor(getInterceptor(mClient.Database(), logger)),
+		grpc.UnaryInterceptor(getInterceptor(
+			mClient.Database(),
+			fnLogger.NewDefaultLogger(),
+		)),
 	)
 
 	services.RegisterAccountsServer(server, &services.AccountImpl{})
@@ -45,8 +48,8 @@ func main() {
 
 func getInterceptor(db *mongo.Database, logger fnLogger.IfLogger) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-		requestAt := time.Now()
-		requestLogger := logger.WithFields(fnLogger.Fields{
+		var requestAt = time.Now()
+		var requestLogger = logger.WithFields(fnLogger.Fields{
 			"requestId": uuid.NewString(),
 			"method":    info.FullMethod,
 			"requestAt": time.Now(),
@@ -56,8 +59,8 @@ func getInterceptor(db *mongo.Database, logger fnLogger.IfLogger) grpc.UnaryServ
 		ctx = vars.SetUtils(ctx, db, logger)
 
 		defer func() {
-			responseAt := time.Now()
-			responseLogger := requestLogger.
+			var responseAt = time.Now()
+			var responseLogger = requestLogger.
 				WithFields(fnLogger.Fields{
 					"responseAt": responseAt,
 					"durations":  responseAt.UnixMilli() - requestAt.UnixMilli(),
