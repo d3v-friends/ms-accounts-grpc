@@ -11,7 +11,6 @@ import (
 	"github.com/d3v-friends/pure-go/fnLogger"
 	"github.com/d3v-friends/pure-go/fnPanic"
 	"github.com/google/uuid"
-	cronV3 "github.com/robfig/cron/v3"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -28,9 +27,9 @@ func main() {
 	}))
 	fnPanic.On(mClient.Migrate(context.TODO(), models.All...))
 
-	var cron = cronV3.New()
 	// todo cron 기능 이곳에 추가
-	go cron.Run()
+	//var cron = cronV3.New()
+	//go cron.Run()
 	var server = grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
 		grpc.UnaryInterceptor(getInterceptor(

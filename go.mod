@@ -6,10 +6,9 @@ require (
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/d3v-friends/go-grpc v1.0.1
 	github.com/d3v-friends/mango v0.0.5
-	github.com/d3v-friends/pure-go v0.0.9
+	github.com/d3v-friends/pure-go v0.0.10
 	github.com/google/uuid v1.3.0
 	github.com/pquerna/otp v1.4.0
-	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.3.0
 	go.mongodb.org/mongo-driver v1.12.0
 	google.golang.org/grpc v1.56.2
