@@ -7,6 +7,7 @@ import (
 	"github.com/d3v-friends/ms-accounts-grpc/vars"
 	"github.com/d3v-friends/pure-go/fnReflect"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
@@ -26,7 +27,9 @@ func FindSystem(ctx context.Context) (system *System, err error) {
 
 	resp := db.
 		Collection(system.GetCollectionNm()).
-		FindOne(ctx, &bson.M{})
+		FindOne(ctx, &bson.M{
+			mvars.FID: primitive.NilObjectID,
+		})
 
 	if err = resp.Err(); err != nil {
 		return

@@ -40,7 +40,7 @@ var mgSystem = models.FnMigrateList{
 		migrationNm = "init indexing"
 		now := time.Now()
 		_, err = collection.InsertOne(ctx, &System{
-			Id: primitive.NewObjectID(),
+			Id: primitive.NilObjectID,
 			Data: SystemData{
 				Identifier: []string{},
 				Property:   []string{},
