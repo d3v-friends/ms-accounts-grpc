@@ -87,6 +87,7 @@ func NewAccountModel(data *AccountData) (res *Account) {
 		Session:   make([]AccountSession, 0),
 		UpdatedAt: now,
 		CreatedAt: now,
+		DeletedAt: nil,
 	}
 }
 
@@ -270,7 +271,7 @@ func (x *IUpsertAccount) Change() (_ bson.M, err error) {
 
 	if set, err = fnBson.MergeD(
 		set,
-		fnBson.ChangeMapToD(x.Identifier, fAccount2DataVerifier),
+		fnBson.ChangeMapToD(x.Verifier, fAccount2DataVerifier),
 	); err != nil {
 		return
 	}

@@ -6,9 +6,11 @@ import (
 	"github.com/d3v-friends/mango/mvars"
 	"github.com/d3v-friends/ms-accounts-grpc/fn/fnOTP"
 	"github.com/d3v-friends/ms-accounts-grpc/vars"
+	"github.com/d3v-friends/pure-go/fnReflect"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"strings"
 	"time"
 )
@@ -79,9 +81,12 @@ func CreateSession(ctx context.Context, i *ICreateSession) (res *AccountSession,
 			fAccountId: account.Id,
 		},
 		bson.M{
-			mvars.OPush: bson.M{
+			"$addToSet": bson.M{
 				fAccountSession: res,
 			},
+		},
+		&options.UpdateOptions{
+			Upsert: fnReflect.ToPointer(true),
 		}); err != nil {
 		return
 	}

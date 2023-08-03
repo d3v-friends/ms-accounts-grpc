@@ -12,10 +12,9 @@ func TestSession(test *testing.T) {
 	var tester = newTestTools()
 	var sessionSv = &SessionImpl{}
 	var accountSv = &AccountImpl{}
-	var systemSv = &SystemImpl{}
 	var account = fnPanic.OnPointer(accountSv.Create(tester.context(), tester.createAccount()))
 
-	fnPanic.On(tester.indexAccount(systemSv))
+	fnPanic.On(tester.indexAccount())
 
 	test.Run("create session", func(t *testing.T) {
 		var ctx = tester.context()

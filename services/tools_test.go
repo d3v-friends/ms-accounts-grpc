@@ -34,9 +34,9 @@ func newTestTools(isInit ...bool) (res *testTools) {
 
 	if fnParams.Get(isInit) {
 		fnPanic.On(res.DB.Drop(ctx))
+		fnPanic.On(mClient.Migrate(ctx, models.All...))
+		fnPanic.On(res.indexAccount())
 	}
-
-	fnPanic.On(mClient.Migrate(ctx, models.All...))
 
 	return
 }
@@ -69,7 +69,8 @@ func (x *testTools) createAccount() (res *ICreateAccount) {
 	return
 }
 
-func (x *testTools) indexAccount(sv *SystemImpl) (err error) {
+func (x *testTools) indexAccount() (err error) {
+	var sv = &SystemImpl{}
 	_, err = sv.UpdateKeys(x.context(), &IUpdateKeys{
 		Identifier: []string{"email"},
 		Property:   []string{"address"},

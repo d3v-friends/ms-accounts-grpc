@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/brianvoe/gofakeit"
 	"github.com/d3v-friends/pure-go/fnPanic"
+	"github.com/d3v-friends/pure-go/fnReflect"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"reflect"
@@ -13,7 +14,7 @@ import (
 
 func TestAccount(test *testing.T) {
 	var tester = newTestTools()
-	var services = &AccountImpl{}
+	var accountSv = &AccountImpl{}
 	var account *Account
 	var err error
 
@@ -29,7 +30,7 @@ func TestAccount(test *testing.T) {
 	test.Run("create account", func(t *testing.T) {
 		var ctx = tester.context()
 
-		account, err = services.Create(ctx, &ICreateAccount{
+		account, err = accountSv.Create(ctx, &ICreateAccount{
 			Identifier: map[string]string{
 				"email": gofakeit.Email(),
 			},
@@ -55,10 +56,11 @@ func TestAccount(test *testing.T) {
 
 		fmt.Printf("account: %s", fnPanic.OnValue(json.Marshal(account)))
 	})
+
 	test.Run("readOne(Id)", func(t *testing.T) {
 		var ctx = tester.context()
 		var readAccount *Account
-		readAccount, err = services.ReadOne(ctx, &IReadAccount{
+		readAccount, err = accountSv.ReadOne(ctx, &IReadAccount{
 			Id: &account.Id,
 		})
 
@@ -71,7 +73,7 @@ func TestAccount(test *testing.T) {
 	test.Run("readOne(identifier)", func(t *testing.T) {
 		var ctx = tester.context()
 		var readAccount *Account
-		readAccount, err = services.ReadOne(ctx, &IReadAccount{
+		readAccount, err = accountSv.ReadOne(ctx, &IReadAccount{
 			Identifier: account.Identifier,
 		})
 
@@ -85,7 +87,7 @@ func TestAccount(test *testing.T) {
 	test.Run("readOne(property)", func(t *testing.T) {
 		var ctx = tester.context()
 		var readAccount *Account
-		readAccount, err = services.ReadOne(ctx, &IReadAccount{
+		readAccount, err = accountSv.ReadOne(ctx, &IReadAccount{
 			Property: account.Property,
 		})
 
@@ -96,4 +98,30 @@ func TestAccount(test *testing.T) {
 		fnSameAccount(t, account, readAccount)
 	})
 
+	test.Run("upsert", func(t *testing.T) {
+		var ctx = tester.context()
+
+		account.Identifier["email"] = gofakeit.Email()
+		account.Permission["signIn"] = false
+		account.Property["address"] = gofakeit.Address().Address
+
+		var loadAccount = fnPanic.OnPointer(accountSv.Upsert(ctx, &IUpsertAccount{
+			Filter: &IReadAccount{
+				Id: fnReflect.ToPointer(account.Id),
+			},
+			Identifier: map[string]string{
+				"email": account.Identifier["email"],
+			},
+			Property: map[string]string{
+				"address": account.Property["address"],
+			},
+			Permission: map[string]bool{
+				"signIn": account.Permission["signIn"],
+			},
+			Verifier: nil,
+		}))
+
+		assert.Equal(t, true, reflect.DeepEqual(account, loadAccount))
+
+	})
 }

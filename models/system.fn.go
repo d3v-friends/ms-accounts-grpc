@@ -99,9 +99,10 @@ func UpdateSystem(ctx context.Context, i IfUpdateSystem) (system *System, err er
 				Value: 1,
 			},
 		},
-		Options: &options.IndexOptions{
-			Unique: fnReflect.ToPointer(true),
-		},
+		// primitive.ObjectID 는 중복되지 않으므로 유니크 설정안해도 된다.
+		//Options: &options.IndexOptions{
+		//	Unique: fnReflect.ToPointer(true),
+		//},
 	})
 
 	if _, err = db.
