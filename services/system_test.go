@@ -16,7 +16,7 @@ func TestSystem(test *testing.T) {
 
 	test.Run("update", func(t *testing.T) {
 		var err error
-		ctx := tools.Context()
+		ctx := tools.context()
 		_, err = service.UpdateKeys(ctx, &IUpdateKeys{
 			Identifier: []string{
 				"email",
@@ -70,7 +70,7 @@ func TestSystem(test *testing.T) {
 				Name: "account.data.permission.signIn_1",
 			},
 			{
-				Name:   "session.data_1",
+				Name:   "session.id_1",
 				Unique: fnReflect.ToPointer(true),
 			},
 		}
@@ -93,7 +93,7 @@ func TestSystem(test *testing.T) {
 	})
 
 	test.Run("read", func(t *testing.T) {
-		var ctx = tools.Context()
+		var ctx = tools.context()
 		var index, err = service.ReadAccountIndex(ctx, nil)
 		if err != nil {
 			t.Fatal(err)

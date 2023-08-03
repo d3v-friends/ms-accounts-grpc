@@ -11,7 +11,7 @@ type (
 )
 
 func (x *SessionImpl) Create(ctx context.Context, i *ICreateSession) (res *Session, err error) {
-	var session *models.SessionData
+	var session *models.AccountSession
 	if session, err = models.
 		CreateSession(ctx, i.CreateSession()); err != nil {
 		return

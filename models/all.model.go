@@ -1,10 +1,10 @@
 package models
 
 import (
-	"github.com/d3v-friends/mango/models"
+	"github.com/d3v-friends/mango/mtype"
 )
 
-var All = []models.IfMigrateModel{
+var All = []mtype.IfMigrateModel{
 	Account{},
 	System{},
 }

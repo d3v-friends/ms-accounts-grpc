@@ -2,7 +2,7 @@ package models
 
 import (
 	"context"
-	"github.com/d3v-friends/mango/models"
+	"github.com/d3v-friends/mango/mtype"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"time"
@@ -35,10 +35,10 @@ const (
 	fSystemDataCreatedAt  = "data.createdAt"
 )
 
-var mgSystem = models.FnMigrateList{
+var mgSystem = mtype.FnMigrateList{
 	func(ctx context.Context, collection *mongo.Collection) (migrationNm string, err error) {
+		var now = time.Now()
 		migrationNm = "init indexing"
-		now := time.Now()
 		_, err = collection.InsertOne(ctx, &System{
 			Id: primitive.NilObjectID,
 			Data: SystemData{
@@ -57,6 +57,6 @@ func (x System) GetCollectionNm() string {
 	return colSystem
 }
 
-func (x System) GetMigrateList() models.FnMigrateList {
+func (x System) GetMigrateList() mtype.FnMigrateList {
 	return mgSystem
 }

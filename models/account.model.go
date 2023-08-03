@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 	"github.com/d3v-friends/mango/fn/fnBson"
-	"github.com/d3v-friends/mango/models"
+	"github.com/d3v-friends/mango/mtype"
 	"github.com/d3v-friends/mango/mvars"
 	"github.com/d3v-friends/pure-go/fnParams"
 	"go.mongodb.org/mongo-driver/bson"
@@ -17,10 +17,15 @@ type (
 		Id        primitive.ObjectID `bson:"_id"`
 		InTrx     bool               `bson:"inTrx"`
 		Account   AccountAll         `bson:"account"`
-		Session   SessionAll         `bson:"session"`
+		Session   []AccountSession   `bson:"session"`
 		UpdatedAt time.Time          `bson:"updatedAt"`
 		CreatedAt time.Time          `bson:"createdAt"`
 		DeletedAt *time.Time         `bson:"deletedAt"`
+	}
+
+	AccountSession struct {
+		Id        primitive.ObjectID `bson:"id"`
+		CreatedAt time.Time          `bson:"createdAt"`
 	}
 
 	AccountAll struct {
@@ -36,16 +41,6 @@ type (
 		CreatedAt  time.Time           `bson:"createdAt"`
 	}
 
-	SessionAll struct {
-		Data      []primitive.ObjectID `bson:"data"`
-		Histories []*SessionData       `bson:"histories"`
-	}
-
-	SessionData struct {
-		Id        primitive.ObjectID `bson:"id"`
-		CreatedAt time.Time          `bson:"createdAt"`
-	}
-
 	Verifier struct {
 		Salt   string `bson:"salt"`
 		Passwd string `bson:"passwd"`
@@ -59,25 +54,24 @@ type (
 const (
 	colAccount = "accounts"
 
-	fAccountId               = "_id"
-	fAccountInTrx            = "inTrx"
-	fAccountAccount          = "account"
-	fAccountSession          = "session"
-	fAccountUpdatedAt        = "updatedAt"
-	fAccountCreatedAt        = "createdAt"
-	fAccountDeletedAt        = "deletedAt"
-	fAccount2Data            = "account.data"
-	fAccount2DataHistories   = "account.histories"
-	fAccount2DataIdentifier  = "account.data.identifier"
-	fAccount2DataProperty    = "account.data.property"
-	fAccount2DataPermission  = "account.data.permission"
-	fAccount2DataVerifier    = "account.data.verifier"
-	fAccount2DataCreatedAt   = "account.data.createdAt"
-	fAccountSessionData      = "session.data"
-	fAccountSessionHistories = "session.histories"
+	fAccountId              = "_id"
+	fAccountInTrx           = "inTrx"
+	fAccountAccount         = "account"
+	fAccountSession         = "session"
+	fAccountSessionId       = "session.id"
+	fAccountUpdatedAt       = "updatedAt"
+	fAccountCreatedAt       = "createdAt"
+	fAccountDeletedAt       = "deletedAt"
+	fAccount2Data           = "account.data"
+	fAccount2DataHistories  = "account.histories"
+	fAccount2DataIdentifier = "account.data.identifier"
+	fAccount2DataProperty   = "account.data.property"
+	fAccount2DataPermission = "account.data.permission"
+	fAccount2DataVerifier   = "account.data.verifier"
+	fAccount2DataCreatedAt  = "account.data.createdAt"
 )
 
-var mgAccountModel = models.FnMigrateList{}
+var mgAccountModel = mtype.FnMigrateList{}
 
 func NewAccountModel(data *AccountData) (res *Account) {
 	now := time.Now()
@@ -90,10 +84,7 @@ func NewAccountModel(data *AccountData) (res *Account) {
 			Data:      *data,
 			Histories: make([]*AccountData, 0),
 		},
-		Session: SessionAll{
-			Data:      make([]primitive.ObjectID, 0),
-			Histories: make([]*SessionData, 0),
-		},
+		Session:   make([]AccountSession, 0),
 		UpdatedAt: now,
 		CreatedAt: now,
 	}
@@ -103,7 +94,7 @@ func (x Account) GetCollectionNm() string {
 	return colAccount
 }
 
-func (x Account) GetMigrateList() models.FnMigrateList {
+func (x Account) GetMigrateList() mtype.FnMigrateList {
 	return mgAccountModel
 }
 
@@ -137,7 +128,7 @@ func (x *IReadAccount) Filter(IIsDelete ...bool) (res bson.D, err error) {
 
 	if x.SessionId != nil {
 		res = append(res, bson.E{
-			Key:   fAccountSessionData,
+			Key:   fAccountSessionId,
 			Value: *x.SessionId,
 		})
 	}
@@ -297,7 +288,7 @@ type IVerifyAccountSession struct {
 func (x IVerifyAccountSession) Filter() (res bson.M, err error) {
 	res = make(bson.M)
 
-	res[fAccountSessionData] = x.SessionId
+	res[fAccountSessionId] = x.SessionId
 
 	for key, value := range x.Permission {
 		res[fmt.Sprintf("%s.%s", fAccount2DataPermission, key)] = value
