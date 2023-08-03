@@ -95,7 +95,7 @@ func UpdateSystem(ctx context.Context, i IfUpdateSystem) (system *System, err er
 	idxList = append(idxList, mongo.IndexModel{
 		Keys: bson.D{
 			{
-				Key:   "session.data",
+				Key:   fAccountSessionId,
 				Value: 1,
 			},
 		},

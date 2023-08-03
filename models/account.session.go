@@ -19,7 +19,7 @@ type ICreateSession struct {
 	Verifier   map[string]string
 }
 
-func CreateSession(ctx context.Context, i *ICreateSession) (res *SessionData, err error) {
+func CreateSession(ctx context.Context, i *ICreateSession) (res *AccountSession, err error) {
 	var db, logger = vars.GetUtils(ctx)
 	var now = time.Now()
 
@@ -69,29 +69,24 @@ func CreateSession(ctx context.Context, i *ICreateSession) (res *SessionData, er
 		}
 	}
 
-	var sessionId = primitive.NewObjectID()
+	res = &AccountSession{
+		Id:        primitive.NewObjectID(),
+		CreatedAt: now,
+	}
+
 	if _, err = db.Collection(colAccount).UpdateOne(ctx,
 		bson.M{
 			fAccountId: account.Id,
 		},
 		bson.M{
 			mvars.OPush: bson.M{
-				fAccountSessionData: sessionId,
-				fAccountSessionHistories: SessionData{
-					Id:        sessionId,
-					CreatedAt: now,
-				},
+				fAccountSession: res,
 			},
 		}); err != nil {
 		return
 	}
 
-	logger.Trace("created session: sessionId=%s", sessionId.Hex())
-
-	res = &SessionData{
-		Id:        sessionId,
-		CreatedAt: now,
-	}
+	logger.Trace("created session: sessionId=%s", res.Id.Hex())
 
 	return
 }
@@ -122,14 +117,14 @@ type IDeleteSession struct {
 func (x IDeleteSession) Filter() (res bson.M) {
 	res = make(bson.M)
 	res[fAccountId] = x.AccountId
-	res[fAccountSessionData] = x.SessionId
+	res[fAccountSessionId] = x.SessionId
 	return
 }
 
 func (x IDeleteSession) Update() bson.M {
 	return bson.M{
 		mvars.OPull: bson.M{
-			fAccountSessionData: x.SessionId,
+			fAccountSessionId: x.SessionId,
 		},
 	}
 }
@@ -143,11 +138,13 @@ func DeleteSessionOne(ctx context.Context, sessionId primitive.ObjectID) (err er
 		UpdateOne(
 			ctx,
 			bson.M{
-				fAccountSessionData: sessionId,
+				fAccountSessionId: sessionId,
 			},
 			bson.M{
 				mvars.OPull: bson.M{
-					fAccountSessionData: sessionId,
+					"session": bson.M{
+						"id": sessionId,
+					},
 				},
 			},
 		); err != nil {
@@ -176,9 +173,7 @@ func DeleteSessionAll(ctx context.Context, accountId primitive.ObjectID) (err er
 				fAccountId: accountId,
 			},
 			bson.M{
-				mvars.OSet: bson.M{
-					fAccountSessionData: make([]string, 0),
-				},
+				mvars.OUnset: fAccountSession,
 			},
 		); err != nil {
 		return

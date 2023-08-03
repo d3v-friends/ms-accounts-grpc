@@ -14,7 +14,7 @@ func (x *ICreateSession) CreateSession() *models.ICreateSession {
 	}
 }
 
-func newSession(i *models.SessionData) (*Session, error) {
+func newSession(i *models.AccountSession) (*Session, error) {
 	return &Session{
 		SessionId: i.Id.Hex(),
 		CreatedAt: i.CreatedAt.Format(time.RFC3339),

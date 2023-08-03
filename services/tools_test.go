@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"github.com/brianvoe/gofakeit"
 	"github.com/d3v-friends/mango"
 	"github.com/d3v-friends/ms-accounts-grpc/fn/fnFakeit"
 	"github.com/d3v-friends/ms-accounts-grpc/models"
@@ -9,6 +10,7 @@ import (
 	"github.com/d3v-friends/pure-go/fnEnv"
 	"github.com/d3v-friends/pure-go/fnLogger"
 	"github.com/d3v-friends/pure-go/fnPanic"
+	"github.com/d3v-friends/pure-go/fnParams"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -16,7 +18,8 @@ type testTools struct {
 	DB *mongo.Database
 }
 
-func newTestTools() (res *testTools) {
+func newTestTools(isInit ...bool) (res *testTools) {
+	var ctx = context.TODO()
 	fnFakeit.Init()
 	res = &testTools{}
 
@@ -29,11 +32,63 @@ func newTestTools() (res *testTools) {
 
 	res.DB = mClient.Database()
 
-	fnPanic.On(mClient.Migrate(context.TODO(), models.All...))
+	if fnParams.Get(isInit) {
+		fnPanic.On(res.DB.Drop(ctx))
+	}
+
+	fnPanic.On(mClient.Migrate(ctx, models.All...))
 
 	return
 }
 
-func (x *testTools) Context() context.Context {
+func (x *testTools) context() context.Context {
 	return vars.SetUtils(context.TODO(), x.DB, fnLogger.NewDefaultLogger())
+}
+
+func (x *testTools) createAccount() (res *ICreateAccount) {
+	res = &ICreateAccount{
+		Identifier: map[string]string{
+			"email": gofakeit.Email(),
+		},
+		Property: map[string]string{
+			"address": gofakeit.Address().Address,
+		},
+		Verifier: map[string]*IVerifier{
+			"passwd": {
+				Salt:   "passwd",
+				Passwd: "passwd",
+				Etc:    "passwd",
+				Mode:   VerifyMode_COMPARE,
+			},
+		},
+		Permission: map[string]bool{
+			"signIn": true,
+		},
+	}
+
+	return
+}
+
+func (x *testTools) indexAccount(sv *SystemImpl) (err error) {
+	_, err = sv.UpdateKeys(x.context(), &IUpdateKeys{
+		Identifier: []string{"email"},
+		Property:   []string{"address"},
+		Permission: []string{"signIn"},
+	})
+	return
+}
+
+func (x *testTools) iCreateSession(account *Account) (res *ICreateSession) {
+	res = &ICreateSession{
+		Identifier: map[string]string{
+			"email": account.Identifier["email"],
+		},
+		Verifier: map[string]string{
+			"passwd": "passwd",
+		},
+		Permission: map[string]bool{
+			"signIn": true,
+		},
+	}
+	return
 }
