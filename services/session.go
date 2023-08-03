@@ -34,7 +34,8 @@ func (x *SessionImpl) Verify(ctx context.Context, i *IVerifySession) (res *Accou
 	return
 }
 
-func (x *SessionImpl) DeleteOne(ctx context.Context, i *IDeleteSessionOne) (_ *Empty, err error) {
+func (x *SessionImpl) DeleteOne(ctx context.Context, i *IDeleteSessionOne) (res *Empty, err error) {
+	res = &Empty{}
 	var sessionId primitive.ObjectID
 	if sessionId, err = i.ParseSessionId(); err != nil {
 		return
@@ -47,7 +48,8 @@ func (x *SessionImpl) DeleteOne(ctx context.Context, i *IDeleteSessionOne) (_ *E
 	return
 }
 
-func (x *SessionImpl) DeleteAll(ctx context.Context, i *IDeleteSessionAll) (_ *Empty, err error) {
+func (x *SessionImpl) DeleteAll(ctx context.Context, i *IDeleteSessionAll) (res *Empty, err error) {
+	res = &Empty{}
 	var accountId primitive.ObjectID
 	if accountId, err = i.ParseAccountId(); err != nil {
 		return

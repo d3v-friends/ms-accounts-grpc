@@ -75,13 +75,11 @@ var mgAccountModel = mtype.FnMigrateList{}
 
 func NewAccountModel(data *AccountData) (res *Account) {
 	now := time.Now()
-	data.CreatedAt = now
-
 	return &Account{
 		Id:    primitive.NewObjectID(),
 		InTrx: false,
 		Account: AccountAll{
-			Data:      *data,
+			Data:      data.SetDefault(),
 			Histories: make([]*AccountData, 0),
 		},
 		Session:   make([]AccountSession, 0),
@@ -296,4 +294,26 @@ func (x IVerifyAccountSession) Filter() (res bson.M, err error) {
 	}
 
 	return
+}
+
+func (x AccountData) SetDefault() AccountData {
+	if len(x.Property) == 0 {
+		x.Property = make(map[string]string)
+	}
+
+	if len(x.Permission) == 0 {
+		x.Permission = make(map[string]bool)
+	}
+
+	if len(x.Identifier) == 0 {
+		x.Identifier = make(map[string]string)
+	}
+
+	if len(x.Verifier) == 0 {
+		x.Verifier = make(map[string]Verifier)
+	}
+
+	x.CreatedAt = time.Now()
+
+	return x
 }
