@@ -1,0 +1,8 @@
+ARG BUILDER_TAG
+FROM ${BUILDER_TAG}
+
+WORKDIR /src
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download

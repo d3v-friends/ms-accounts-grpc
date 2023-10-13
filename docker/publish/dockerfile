@@ -1,0 +1,19 @@
+ARG BUILDER_TAG
+
+FROM ${BUILDER_TAG} AS builder
+
+# copy source
+WORKDIR /src
+COPY . .
+RUN go mod tidy
+
+# build
+ARG MAIN_PATH
+ARG PROJECT
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags '-s' -o app ${MAIN_PATH}
+
+FROM scratch
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY ./env /env
+COPY --from=builder /src/app /app
+ENTRYPOINT ["/app"]

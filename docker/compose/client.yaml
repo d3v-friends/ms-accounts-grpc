@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  user_api:
+    image: docker.dev-friends.com/smsv2-client-user:latest
+    container_name: user_api
+    environment:
+      - PORT=5000
+      - GO_ENV=prod.user
+      - TZ=ETC/UTC
+      - SuperDBUrl=root:master-smsv2@tcp(sms.co98auvjsqr6.ap-northeast-2.rds.amazonaws.com:3306)/client?charset=utf8mb4&parseTime=True&loc=UTC
+      - DbUrl=root:master-smsv2@tcp(sms.co98auvjsqr6.ap-northeast-2.rds.amazonaws.com:3306)/%s?charset=utf8mb4&parseTime=True&loc=UTC
+    ports:
+      - "5000:5000"
+    networks:
+      - default
+  admin_api:
+    image: docker.dev-friends.com/smsv2-client-admin:latest
+    container_name: admin_api
+    environment:
+      - PORT=5001
+      - TZ=ETC/UTC
+      - GO_ENV=prod.admin
+      - SuperDBUrl=root:master-smsv2@tcp(sms.co98auvjsqr6.ap-northeast-2.rds.amazonaws.com:3306)/client?charset=utf8mb4&parseTime=True&loc=UTC
+      - DbUrl=root:master-smsv2@tcp(sms.co98auvjsqr6.ap-northeast-2.rds.amazonaws.com:3306)/%s?charset=utf8mb4&parseTime=True&loc=UTC
+      - AwsAccessKey=AKIASHZRND5UHJ4EN2PS
+      - AwsPrivateKey=MzCQrHVFNZ/ciT4JBpfXDVtNXS237a/rg7UcZsV4
+      - AwsS3Bucket=smsv2-shared
+      - StaticFileDomain=https://static.sms-master.plus
+    ports:
+      - "5001:5001"
+    networks:
+      - default
+    depends_on:
+      - user_api
+
+networks:
+  default:
+    driver: bridge
+
+
+
+
+

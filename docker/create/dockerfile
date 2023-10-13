@@ -1,0 +1,11 @@
+FROM golang:alpine
+
+# package download
+WORKDIR src
+COPY ./go.mod .
+COPY ./go.sum .
+
+# ssl
+RUN apk --no-cache add ca-certificates
+
+RUN go mod tidy
